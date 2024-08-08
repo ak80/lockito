@@ -45,7 +45,7 @@ internal class LockManagerTest {
     }
 
     @Test
-    fun locked() {
+    fun lock_withRunnable() {
         val lockito = Lockito<Long>()
         val lockObject = Random.nextLong()
 
@@ -90,5 +90,19 @@ internal class LockManagerTest {
         assert(workDone.get() == 2)
     }
 
+    @Test
+    fun lock_withSupplier() {
+        val lockito = Lockito<Long>()
+        val lockObject = Random.nextLong()
+
+        val workDone = AtomicBoolean(false)
+
+        val result = lockito.lock(lockObject) {
+            workDone.set(Random.nextBoolean())
+            workDone.get()
+        }
+        assert(!lockito.isLocked(lockObject))
+        assert(workDone.get() == result)
+    }
 
 }

@@ -1,5 +1,6 @@
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.locks.ReentrantLock
+import java.util.function.Supplier
 
 /**
  * MIT License
@@ -33,18 +34,20 @@ class Lockito<T> {
     fun isLocked(lockObject: T): Boolean = lockManager.isLocked(lockObject)
     fun unlock(lockObject: T) = lockManager.unlock(lockObject)
 
-    fun lock(lockObject: T, runnable: Runnable) {
+    fun <R> lock(lockObject: T, supplier: Supplier<R>):R {
         var exception: Exception? = null
+        var result: R? = null
 
         lockManager.lock(lockObject)
         try {
-            runnable.run()
+            result = supplier.get()
         } catch (e: Exception) {
             exception = e
         }finally {
             unlock(lockObject)
         }
         if(exception != null) throw exception
+        return result!!
     }
 
 }
